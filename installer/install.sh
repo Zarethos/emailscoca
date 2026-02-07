@@ -177,19 +177,22 @@ install_mysql() {
         MYSQL_ROOT_PASSWORD=$(generate_password 24)
     fi
     
-    # Check if root already has a password set
+    # Try unix_socket auth first (default on Ubuntu/Debian)
     if mysql -u root -e "SELECT 1" &>/dev/null; then
-        # No password set, secure the installation
-        mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
-        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='';"
-        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
-        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DROP DATABASE IF EXISTS test;"
-        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
-        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+        log "Using unix_socket authentication for MariaDB"
+        # Create a password-based root user for the script to use
+        mysql -u root <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED VIA mysql_native_password USING PASSWORD('${MYSQL_ROOT_PASSWORD}') OR unix_socket;
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
+EOF
         log "MariaDB installed and secured"
     else
-        # Root password already exists, ask user for it
-        log_warning "MariaDB root password already set."
+        # unix_socket failed, try password auth
+        log_warning "MariaDB root password already set or unix_socket disabled."
         echo -e "${YELLOW}Enter existing MariaDB root password:${NC}"
         read -s MYSQL_ROOT_PASSWORD
         echo
@@ -210,7 +213,9 @@ create_mail_database() {
         MYSQL_MAIL_PASSWORD=$(generate_password 24)
     fi
     
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOF
+    # Use unix_socket if available, otherwise use password
+    if mysql -u root -e "SELECT 1" &>/dev/null; then
+        mysql -u root <<EOF
 CREATE DATABASE IF NOT EXISTS mailserver CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'mailuser'@'localhost' IDENTIFIED BY '${MYSQL_MAIL_PASSWORD}';
 GRANT ALL PRIVILEGES ON mailserver.* TO 'mailuser'@'localhost';
@@ -289,6 +294,93 @@ CREATE TABLE IF NOT EXISTS admin_logs (
 -- Insert default domain
 INSERT INTO virtual_domains (name) VALUES ('${MAIL_DOMAIN}') ON DUPLICATE KEY UPDATE name=name;
 EOF
+    else
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOFPWD
+CREATE DATABASE IF NOT EXISTS mailserver CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'mailuser'@'localhost' IDENTIFIED BY '${MYSQL_MAIL_PASSWORD}';
+GRANT ALL PRIVILEGES ON mailserver.* TO 'mailuser'@'localhost';
+FLUSH PRIVILEGES;
+USE mailserver;
+-- Domains table
+CREATE TABLE IF NOT EXISTS virtual_domains (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+-- Users/Mailboxes table
+CREATE TABLE IF NOT EXISTS virtual_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    domain_id INT NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    quota BIGINT DEFAULT 1073741824,
+    active TINYINT(1) DEFAULT 1,
+    is_admin TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    FOREIGN KEY (domain_id) REFERENCES virtual_domains(id) ON DELETE CASCADE
+);
+-- Aliases table
+CREATE TABLE IF NOT EXISTS virtual_aliases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    domain_id INT NOT NULL,
+    source VARCHAR(255) NOT NULL,
+    destination VARCHAR(255) NOT NULL,
+    active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (domain_id) REFERENCES virtual_domains(id) ON DELETE CASCADE
+);
+-- Admin settings table
+CREATE TABLE IF NOT EXISTS admin_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(255) NOT NULL UNIQUE,
+    setting_value TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+-- Login attempts table (for security)
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_address VARCHAR(45) NOT NULL,
+    email VARCHAR(255),
+    success TINYINT(1) DEFAULT 0,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ip (ip_address),
+    INDEX idx_created (created_at)
+);
+-- Mail logs table
+CREATE TABLE IF NOT EXISTS mail_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    message_id VARCHAR(255),
+    sender VARCHAR(255),
+    recipient VARCHAR(255),
+    subject VARCHAR(255),
+    status ENUM('sent', 'received', 'bounced', 'rejected') NOT NULL,
+    size BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_sender (sender),
+    INDEX idx_recipient (recipient),
+    INDEX idx_created (created_at)
+);
+-- Audit log table
+CREATE TABLE IF NOT EXISTS audit_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT,
+    action VARCHAR(255) NOT NULL,
+    details TEXT,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES virtual_users(id) ON DELETE SET NULL
+);
+-- Insert default domain
+INSERT INTO virtual_domains (name) VALUES ('${MAIL_DOMAIN}') ON DUPLICATE KEY UPDATE name=name;
+EOFPWD
+    fi
 
     log "Mail database created successfully"
 }
