@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" class="<roundcube:exp expression='!empty($__browser_caps[\'touch\']) ? "touch" : ""' />">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#FF9A4D">
+    
+    <title><roundcube:object name="pagetitle" /></title>
+    
+    <roundcube:include file="includes/links.html" />
+    
+    <!-- Premium Starter Skin -->
+    <link rel="stylesheet" href="<roundcube:var name='env:skin_path' />/styles.css">
+    
+    <style>
+        body.login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--premium-orange) 0%, var(--premium-orange-dark) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--premium-shadow-lg);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .login-logo svg {
+            width: 48px;
+            height: 48px;
+            fill: white;
+        }
+        
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--premium-text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .login-subtitle {
+            color: var(--premium-text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .login-card {
+            background: var(--premium-cream-light);
+            border-radius: var(--premium-radius-xl);
+            padding: 40px;
+            box-shadow: var(--premium-shadow-lg);
+            border: 1px solid var(--premium-cream-border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--premium-orange), var(--premium-orange-light), var(--premium-orange));
+        }
+        
+        .login-form-group {
+            margin-bottom: 24px;
+        }
+        
+        .login-form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--premium-text-primary);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .login-input-wrapper {
+            position: relative;
+        }
+        
+        .login-input-wrapper .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--premium-text-muted);
+            width: 20px;
+            height: 20px;
+            transition: color 0.25s;
+        }
+        
+        .login-input-wrapper input {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            font-size: 1rem;
+            border: 2px solid var(--premium-cream-border);
+            border-radius: var(--premium-radius-md);
+            background: var(--premium-cream);
+            color: var(--premium-text-primary);
+            transition: all 0.25s;
+        }
+        
+        .login-input-wrapper input:hover {
+            border-color: var(--premium-orange-light);
+        }
+        
+        .login-input-wrapper input:focus {
+            outline: none;
+            border-color: var(--premium-orange);
+            box-shadow: 0 0 0 4px rgba(255, 154, 77, 0.15);
+            background: var(--premium-cream-light);
+        }
+        
+        .login-input-wrapper input:focus + .input-icon {
+            color: var(--premium-orange);
+        }
+        
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .remember-me input {
+            display: none;
+        }
+        
+        .remember-me .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--premium-cream-border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            background: var(--premium-cream);
+        }
+        
+        .remember-me input:checked + .checkbox-custom {
+            background: var(--premium-orange);
+            border-color: var(--premium-orange);
+        }
+        
+        .remember-me input:checked + .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .remember-me span:last-child {
+            color: var(--premium-text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, var(--premium-orange) 0%, var(--premium-orange-dark) 100%);
+            border: none;
+            border-radius: var(--premium-radius-md);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--premium-shadow-md), 0 0 20px rgba(255, 154, 77, 0.3);
+        }
+        
+        .login-button:active {
+            transform: translateY(0);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--premium-cream-border);
+        }
+        
+        .login-footer p {
+            color: var(--premium-text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .login-footer a {
+            color: var(--premium-orange);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .login-error {
+            background: var(--premium-danger-bg);
+            color: var(--premium-danger);
+            padding: 14px 18px;
+            border-radius: var(--premium-radius-md);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: shake 0.4s ease-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .login-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .login-background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--premium-orange-subtle) 0%, transparent 70%);
+            animation: bgPulse 4s ease-in-out infinite;
+        }
+        
+        .login-background::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--premium-orange-subtle) 0%, transparent 70%);
+            animation: bgPulse 4s ease-in-out infinite 2s;
+        }
+        
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        /* Host selection */
+        .host-select-wrapper {
+            position: relative;
+        }
+        
+        .host-select-wrapper select {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            font-size: 1rem;
+            border: 2px solid var(--premium-cream-border);
+            border-radius: var(--premium-radius-md);
+            background: var(--premium-cream);
+            color: var(--premium-text-primary);
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        
+        .host-select-wrapper select:focus {
+            outline: none;
+            border-color: var(--premium-orange);
+            box-shadow: 0 0 0 4px rgba(255, 154, 77, 0.15);
+        }
+        
+        .host-select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--premium-text-muted);
+            pointer-events: none;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body class="login-page">
+    <div class="login-background"></div>
+    
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                </svg>
+            </div>
+            <h1 class="login-title"><roundcube:label name="welcome" /></h1>
+            <p class="login-subtitle">Sign in to access your email</p>
+        </div>
+        
+        <div class="login-card">
+            <roundcube:if condition="env:error">
+                <div class="login-error">
+                    <span>⚠️</span>
+                    <span><roundcube:var name="env:error" /></span>
+                </div>
+            </roundcube:if>
+            
+            <form id="login-form" name="form" action="./" method="post">
+                <roundcube:object name="loginform" />
+                
+                <div class="login-form-group">
+                    <label for="_user"><roundcube:label name="username" /></label>
+                    <div class="login-input-wrapper">
+                        <input type="text" name="_user" id="_user" 
+                               placeholder="Enter your email address" 
+                               required autocomplete="username"
+                               value="<roundcube:var name='env:username' />">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="login-form-group">
+                    <label for="_pass"><roundcube:label name="password" /></label>
+                    <div class="login-input-wrapper">
+                        <input type="password" name="_pass" id="_pass" 
+                               placeholder="Enter your password" 
+                               required autocomplete="current-password">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <roundcube:if condition="config:login_autocomplete" value="2">
+                <div class="login-form-group">
+                    <label for="_host"><roundcube:label name="server" /></label>
+                    <div class="host-select-wrapper">
+                        <roundcube:object name="hostselect" id="_host" />
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 15v4H5v-4h14m1-2H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 18.5c-.82 0-1.5-.67-1.5-1.5s.68-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM19 5v4H5V5h14m1-2H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 8.5c-.82 0-1.5-.67-1.5-1.5S6.18 5.5 7 5.5s1.5.68 1.5 1.5S7.83 8.5 7 8.5z"/>
+                        </svg>
+                    </div>
+                </div>
+                </roundcube:if>
+                
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" name="_remember" id="_remember">
+                        <span class="checkbox-custom"></span>
+                        <span>Remember me</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="login-button" id="login-submit">
+                    <roundcube:label name="login" />
+                </button>
+                
+                <input type="hidden" name="_token" value="<roundcube:object name='token' />" />
+                <input type="hidden" name="_task" value="login" />
+                <input type="hidden" name="_action" value="login" />
+                <input type="hidden" name="_timezone" id="rcmlogintz" value="_default_" />
+                <input type="hidden" name="_url" id="rcmloginurl" value="<roundcube:var name='env:url' />" />
+            </form>
+            
+            <div class="login-footer">
+                <p>&copy; <roundcube:var name="now" format="Y" /> Premium Mail. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+    
+    <roundcube:include file="includes/footer.html" />
+    <script src="<roundcube:var name='env:skin_path' />/premium.js"></script>
+    
+    <script>
+        // Focus first empty input
+        document.addEventListener('DOMContentLoaded', function() {
+            var userInput = document.getElementById('_user');
+            var passInput = document.getElementById('_pass');
+            
+            if (userInput && !userInput.value) {
+                userInput.focus();
+            } else if (passInput && !passInput.value) {
+                passInput.focus();
+            }
+            
+            // Detect timezone
+            var tzInput = document.getElementById('rcmlogintz');
+            if (tzInput && window.Intl) {
+                try {
+                    tzInput.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                } catch(e) {}
+            }
+        });
+    </script>
+</body>
+</html>

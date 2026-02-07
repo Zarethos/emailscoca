@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    
+    <title><roundcube:object name="pagetitle" /></title>
+    
+    <roundcube:include file="includes/links.html" />
+</head>
+<body class="compose-page">
+    
+    <div id="layout" class="layout-compose">
+        
+        <!-- Compose Header -->
+        <div class="compose-header">
+            <div class="compose-header-left">
+                <button class="btn btn-icon" onclick="history.back()" aria-label="Go back">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h1 class="compose-title"><roundcube:label name="compose" /></h1>
+            </div>
+            <div class="compose-header-right">
+                <roundcube:button command="savedraft" type="button" 
+                    class="btn btn-secondary" label="savedraft" />
+                <roundcube:button command="send" type="button" 
+                    class="btn btn-primary" label="send" />
+            </div>
+        </div>
+        
+        <!-- Compose Form -->
+        <div class="compose-body">
+            <form id="compose-form" name="compose" action="./" method="post" enctype="multipart/form-data">
+                
+                <!-- Hidden fields -->
+                <roundcube:object name="composeheaders" type="hidden" />
+                
+                <!-- From -->
+                <div class="compose-row compose-from">
+                    <label class="compose-label"><roundcube:label name="from" /></label>
+                    <div class="compose-field">
+                        <roundcube:object name="composeheaders" part="from" 
+                            id="compose-from" class="form-control" />
+                    </div>
+                </div>
+                
+                <!-- To -->
+                <div class="compose-row compose-to">
+                    <label class="compose-label"><roundcube:label name="to" /></label>
+                    <div class="compose-field">
+                        <roundcube:object name="composeheaders" part="to" 
+                            id="compose-to" class="form-control recipient-input" />
+                        <button type="button" class="btn btn-icon btn-sm toggle-cc" 
+                            data-toggle="cc" title="Add CC">Cc</button>
+                        <button type="button" class="btn btn-icon btn-sm toggle-bcc" 
+                            data-toggle="bcc" title="Add BCC">Bcc</button>
+                    </div>
+                </div>
+                
+                <!-- CC (hidden by default) -->
+                <div class="compose-row compose-cc" id="compose-cc-row" style="display:none">
+                    <label class="compose-label"><roundcube:label name="cc" /></label>
+                    <div class="compose-field">
+                        <roundcube:object name="composeheaders" part="cc" 
+                            id="compose-cc" class="form-control recipient-input" />
+                        <button type="button" class="btn btn-icon btn-sm remove-row" 
+                            data-remove="cc">×</button>
+                    </div>
+                </div>
+                
+                <!-- BCC (hidden by default) -->
+                <div class="compose-row compose-bcc" id="compose-bcc-row" style="display:none">
+                    <label class="compose-label"><roundcube:label name="bcc" /></label>
+                    <div class="compose-field">
+                        <roundcube:object name="composeheaders" part="bcc" 
+                            id="compose-bcc" class="form-control recipient-input" />
+                        <button type="button" class="btn btn-icon btn-sm remove-row" 
+                            data-remove="bcc">×</button>
+                    </div>
+                </div>
+                
+                <!-- Subject -->
+                <div class="compose-row compose-subject">
+                    <label class="compose-label"><roundcube:label name="subject" /></label>
+                    <div class="compose-field">
+                        <roundcube:object name="composeheaders" part="subject" 
+                            id="compose-subject" class="form-control" />
+                    </div>
+                </div>
+                
+                <!-- Attachments -->
+                <div class="compose-row compose-attachments">
+                    <div class="attachments-header">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
+                        </svg>
+                        <span><roundcube:label name="attachments" /></span>
+                        <roundcube:button command="attach" type="button" 
+                            class="btn btn-sm btn-secondary" label="addattachment" />
+                    </div>
+                    <div id="attachment-list" class="attachment-list">
+                        <roundcube:object name="attachmentlist" id="attachmentlist" />
+                    </div>
+                    <roundcube:object name="filedrop" id="filedrop" class="filedrop" />
+                </div>
+                
+                <!-- Editor Toolbar -->
+                <div id="editor-toolbar" class="editor-toolbar">
+                    <roundcube:object name="editortoolbar" id="editortoolbar" />
+                </div>
+                
+                <!-- Message Body -->
+                <div class="compose-editor">
+                    <roundcube:object name="composebody" id="composebody" 
+                        class="compose-textarea" rows="20" />
+                </div>
+                
+                <!-- Compose Options -->
+                <div class="compose-options">
+                    <div class="option-group">
+                        <label class="option-item">
+                            <input type="checkbox" name="_receipt" id="receipt" value="1">
+                            <span class="checkbox-custom"></span>
+                            <span><roundcube:label name="returnreceipt" /></span>
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" name="_dsn" id="dsn" value="1">
+                            <span class="checkbox-custom"></span>
+                            <span><roundcube:label name="dsn" /></span>
+                        </label>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label"><roundcube:label name="priority" /></label>
+                        <roundcube:object name="priorityselector" id="priority" 
+                            class="form-control form-select" />
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+        
+    </div>
+    
+    <roundcube:include file="includes/footer.html" />
+    
+    <style>
+        .compose-page {
+            background: var(--premium-cream);
+            min-height: 100vh;
+        }
+        
+        .layout-compose {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .compose-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: var(--premium-cream-light);
+            border-bottom: 1px solid var(--premium-cream-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .compose-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .compose-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .compose-header-right {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .compose-body {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .compose-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--premium-cream-border);
+        }
+        
+        .compose-label {
+            width: 80px;
+            padding-top: 10px;
+            font-weight: 500;
+            color: var(--premium-text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .compose-field {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .compose-field input,
+        .compose-field select,
+        .compose-field textarea {
+            flex: 1;
+            padding: 10px 14px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            color: var(--premium-text-primary);
+        }
+        
+        .compose-field input:focus,
+        .compose-field textarea:focus {
+            outline: none;
+        }
+        
+        .compose-attachments {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .attachments-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 0;
+            color: var(--premium-text-secondary);
+        }
+        
+        .attachments-header .btn {
+            margin-left: auto;
+        }
+        
+        .attachment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        
+        .filedrop {
+            border: 2px dashed var(--premium-cream-border);
+            border-radius: var(--premium-radius-md);
+            padding: 30px;
+            text-align: center;
+            color: var(--premium-text-muted);
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+        
+        .filedrop:hover,
+        .filedrop.active {
+            border-color: var(--premium-orange);
+            background: var(--premium-orange-subtle);
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 12px;
+            background: var(--premium-cream-light);
+            border: 1px solid var(--premium-cream-border);
+            border-bottom: none;
+            border-radius: var(--premium-radius-md) var(--premium-radius-md) 0 0;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .compose-editor {
+            background: var(--premium-cream-light);
+            border: 1px solid var(--premium-cream-border);
+            border-radius: 0 0 var(--premium-radius-md) var(--premium-radius-md);
+            min-height: 400px;
+        }
+        
+        .compose-textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            line-height: 1.8;
+            resize: none;
+            font-family: var(--premium-font-family);
+        }
+        
+        .compose-textarea:focus {
+            outline: none;
+        }
+        
+        .compose-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            margin-top: 20px;
+            background: var(--premium-cream-light);
+            border-radius: var(--premium-radius-md);
+            border: 1px solid var(--premium-cream-border);
+        }
+        
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--premium-text-secondary);
+        }
+        
+        .option-item input[type="checkbox"] {
+            display: none;
+        }
+        
+        .option-item .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--premium-cream-border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .option-item input:checked + .checkbox-custom {
+            background: var(--premium-orange);
+            border-color: var(--premium-orange);
+        }
+        
+        .option-item input:checked + .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 0.7rem;
+        }
+        
+        .option-label {
+            font-size: 0.9rem;
+            color: var(--premium-text-muted);
+            margin-right: 8px;
+        }
+        
+        .form-select {
+            padding: 8px 30px 8px 12px;
+            border: 1px solid var(--premium-cream-border);
+            border-radius: var(--premium-radius-sm);
+            background: var(--premium-cream);
+            font-size: 0.9rem;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        /* Toggle buttons */
+        .toggle-cc, .toggle-bcc {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            background: var(--premium-cream);
+            border: 1px solid var(--premium-cream-border);
+            color: var(--premium-text-muted);
+        }
+        
+        .toggle-cc:hover, .toggle-bcc:hover {
+            background: var(--premium-orange-subtle);
+            color: var(--premium-orange);
+        }
+        
+        .remove-row {
+            font-size: 1.2rem;
+            padding: 4px 8px;
+            background: transparent;
+            color: var(--premium-text-muted);
+        }
+        
+        .remove-row:hover {
+            color: var(--premium-danger);
+        }
+        
+        @media (max-width: 768px) {
+            .compose-body {
+                padding: 12px;
+            }
+            
+            .compose-row {
+                flex-direction: column;
+            }
+            
+            .compose-label {
+                width: 100%;
+                padding: 0 0 8px;
+            }
+            
+            .compose-options {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle CC/BCC rows
+            document.querySelectorAll('[data-toggle]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var target = this.getAttribute('data-toggle');
+                    var row = document.getElementById('compose-' + target + '-row');
+                    if (row) {
+                        row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+                        this.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Remove CC/BCC rows
+            document.querySelectorAll('[data-remove]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var target = this.getAttribute('data-remove');
+                    var row = document.getElementById('compose-' + target + '-row');
+                    var toggle = document.querySelector('[data-toggle="' + target + '"]');
+                    if (row) {
+                        row.style.display = 'none';
+                    }
+                    if (toggle) {
+                        toggle.style.display = 'inline-flex';
+                    }
+                });
+            });
+            
+            // Auto-resize textarea
+            var textarea = document.getElementById('composebody');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.max(400, this.scrollHeight) + 'px';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

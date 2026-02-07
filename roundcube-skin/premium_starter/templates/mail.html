@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex,nofollow">
+    
+    <title><roundcube:object name="pagetitle" /></title>
+    
+    <roundcube:include file="includes/links.html" />
+</head>
+<body class="mail-page task-<roundcube:var name='env:task' /> action-<roundcube:var name='env:action' />">
+    
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="preloader-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-logo">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="#FF9A4D">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Layout -->
+    <div id="layout" class="layout-widescreen">
+        
+        <!-- Sidebar -->
+        <div id="layout-sidebar" class="layout-sidebar" role="navigation">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="#FF9A4D">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">Premium Mail</span>
+                </div>
+                <button id="sidebar-toggle" class="sidebar-toggle btn btn-icon" aria-label="Toggle sidebar">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Compose Button -->
+            <div class="sidebar-compose">
+                <button class="btn btn-compose" onclick="return rcmail.command('compose','',this,event)">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    <span><roundcube:label name="compose" /></span>
+                </button>
+            </div>
+            
+            <!-- Mailbox List -->
+            <div class="sidebar-folders">
+                <roundcube:object name="mailboxlist" id="mailboxlist" class="folderlist treelist listing" />
+            </div>
+            
+            <!-- Quota Display -->
+            <div class="sidebar-quota">
+                <roundcube:object name="quotadisplay" id="quotadisplay" 
+                    display="text" class="quota-widget" />
+            </div>
+            
+            <!-- User Menu -->
+            <div class="sidebar-user">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <roundcube:object name="username" class="username" />
+                    </div>
+                    <div class="user-details">
+                        <span class="user-email"><roundcube:var name="env:username" /></span>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <a href="#" class="btn btn-icon" data-tooltip="Settings" 
+                       onclick="return rcmail.command('settings','',this,event)">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="btn btn-icon" data-tooltip="Logout" 
+                       onclick="return rcmail.command('logout','',this,event)">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Message List Panel -->
+        <div id="layout-list" class="layout-list" role="main">
+            <!-- List Header -->
+            <div class="list-header">
+                <div class="header-title">
+                    <h2 id="folder-title"><roundcube:object name="mailboxname" id="mailboxname" /></h2>
+                    <span class="message-count"><roundcube:object name="messagecount" /></span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-icon" data-tooltip="Refresh" 
+                            onclick="return rcmail.command('refresh','',this,event)">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-icon" data-tooltip="Select all" 
+                            onclick="return rcmail.command('select-all','',this,event)">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zM3 9h2V7H3v2zm10-6h-2v2h2V3zm6 0v2h2c0-1.1-.9-2-2-2zM5 21v-2H3c0 1.1.9 2 2 2zm-2-4h2v-2H3v2zM9 3H7v2h2V3zm2 18h2v-2h-2v2zm8-8h2v-2h-2v2zm0 8c1.1 0 2-.9 2-2h-2v2zm0-12h2V7h-2v2zm0 8h2v-2h-2v2zm-4 4h2v-2h-2v2zm0-16h2V3h-2v2zM7 17h10V7H7v10zm2-8h6v6H9V9z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div id="quicksearchbar" class="search-bar">
+                <roundcube:object name="searchfilter" id="searchfilter" />
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <roundcube:object name="searchform" id="searchform" />
+                    <button class="search-clear btn btn-icon" type="button" aria-label="Clear search">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Toolbar -->
+            <div id="toolbar" class="toolbar" role="toolbar">
+                <roundcube:button command="checkmail" type="button" 
+                    class="btn btn-icon" title="checkmail" />
+                <roundcube:button command="archive" type="button" 
+                    class="btn btn-icon" title="archive" />
+                <roundcube:button command="markmessage" prop="read" type="button" 
+                    class="btn btn-icon" title="markread" />
+                <roundcube:button command="markmessage" prop="flagged" type="button" 
+                    class="btn btn-icon" title="markflagged" />
+                <div class="toolbar-separator"></div>
+                <roundcube:button command="move" type="button" 
+                    class="btn btn-icon" title="move" />
+                <roundcube:button command="delete" type="button" 
+                    class="btn btn-icon btn-danger" title="delete" />
+                <div class="toolbar-separator"></div>
+                <roundcube:container name="toolbar" id="toolbar-container" />
+            </div>
+            
+            <!-- Message List -->
+            <div id="messagelist-container" class="message-list-container">
+                <roundcube:object name="messagelist" id="messagelist" 
+                    class="message-list records-table messagelist sortable" 
+                    data-list="messages" />
+            </div>
+            
+            <!-- List Footer -->
+            <div class="list-footer">
+                <roundcube:object name="countdisplay" id="countdisplay" />
+                <div class="pagination-container">
+                    <roundcube:button command="previouspage" type="button" class="btn btn-icon btn-sm" />
+                    <roundcube:button command="nextpage" type="button" class="btn btn-icon btn-sm" />
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Panel -->
+        <div id="layout-content" class="layout-content">
+            <!-- Content Header -->
+            <div class="content-header">
+                <button id="back-list-button" class="btn btn-icon mobile-only" aria-label="Back to list">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <div class="content-actions">
+                    <roundcube:button command="reply" type="button" 
+                        class="btn btn-sm" title="reply" />
+                    <roundcube:button command="reply-all" type="button" 
+                        class="btn btn-sm" title="replyall" />
+                    <roundcube:button command="forward" type="button" 
+                        class="btn btn-sm" title="forward" />
+                    <div class="toolbar-separator"></div>
+                    <roundcube:button command="print" type="button" 
+                        class="btn btn-icon btn-sm" title="print" />
+                    <roundcube:button command="download" type="button" 
+                        class="btn btn-icon btn-sm" title="download" />
+                    <div class="dropdown">
+                        <button class="btn btn-icon btn-sm dropdown-toggle" aria-label="More actions">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <roundcube:button command="viewsource" type="link" 
+                                class="dropdown-item" label="viewsource" />
+                            <roundcube:button command="headers" type="link" 
+                                class="dropdown-item" label="headers" />
+                            <div class="dropdown-divider"></div>
+                            <roundcube:button command="move" type="link" 
+                                class="dropdown-item" label="move" />
+                            <roundcube:button command="copy" type="link" 
+                                class="dropdown-item" label="copy" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Message View -->
+            <div id="message-content" class="message-content">
+                <!-- Message will be loaded here -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg viewBox="0 0 24 24" width="80" height="80" fill="currentColor" opacity="0.3">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="empty-state-title"><roundcube:label name="nomessages" /></h3>
+                    <p class="empty-state-description">Select a message from the list to view its contents</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Message Header Template (hidden, used by JS) -->
+    <div id="message-header-template" style="display:none">
+        <div id="message-header" class="message-header">
+            <div class="message-subject">
+                <roundcube:object name="messageheaders" class="headers-table" 
+                    header="subject" />
+            </div>
+            <div class="message-meta">
+                <div class="sender-info">
+                    <div class="sender-avatar">
+                        <roundcube:object name="contactphoto" class="contactphoto" />
+                    </div>
+                    <div class="sender-details">
+                        <roundcube:object name="messageheaders" class="headers-table" 
+                            header="from" addicon="virtual" />
+                        <roundcube:object name="messageheaders" class="headers-table" 
+                            header="to,cc" />
+                    </div>
+                </div>
+                <div class="message-date">
+                    <roundcube:object name="messageheaders" class="headers-table" 
+                        header="date" />
+                </div>
+            </div>
+            <roundcube:if condition="env:messageattachments">
+            <div class="message-attachments">
+                <roundcube:object name="messageattachments" id="attachment-list" 
+                    class="attachment-list" />
+            </div>
+            </roundcube:if>
+        </div>
+    </div>
+    
+    <roundcube:include file="includes/footer.html" />
+    
+    <style>
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--premium-cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        #preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .preloader-spinner {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--premium-cream-border);
+            border-top-color: var(--premium-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .spinner-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Sidebar Compose Button */
+        .sidebar-compose {
+            padding: 16px;
+        }
+        
+        .btn-compose {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+        }
+        
+        /* Sidebar Folders */
+        .sidebar-folders {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        /* Sidebar Quota */
+        .sidebar-quota {
+            padding: 16px;
+            border-top: 1px solid var(--premium-cream-border);
+        }
+        
+        /* Sidebar User */
+        .sidebar-user {
+            padding: 16px;
+            border-top: 1px solid var(--premium-cream-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--premium-orange), var(--premium-orange-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .user-email {
+            font-size: 0.85rem;
+            color: var(--premium-text-secondary);
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        /* List Header */
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--premium-cream-border);
+            background: var(--premium-cream-light);
+        }
+        
+        .header-title h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .message-count {
+            font-size: 0.85rem;
+            color: var(--premium-text-muted);
+            margin-left: 8px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+        
+        /* Search Bar */
+        .search-bar {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--premium-cream-border);
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            color: var(--premium-text-muted);
+            pointer-events: none;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px;
+            border: 2px solid var(--premium-cream-border);
+            border-radius: var(--premium-radius-lg);
+            background: var(--premium-cream);
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 8px;
+            opacity: 0.5;
+        }
+        
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--premium-cream-border);
+            background: var(--premium-cream);
+        }
+        
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: var(--premium-cream-border);
+            margin: 0 8px;
+        }
+        
+        /* Message List Container */
+        .message-list-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        /* List Footer */
+        .list-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-top: 1px solid var(--premium-cream-border);
+            background: var(--premium-cream);
+            font-size: 0.85rem;
+            color: var(--premium-text-muted);
+        }
+        
+        .pagination-container {
+            display: flex;
+            gap: 4px;
+        }
+        
+        /* Content Header */
+        .content-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--premium-cream-border);
+            background: var(--premium-cream);
+        }
+        
+        .content-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Message Content */
+        .message-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--premium-cream-light);
+        }
+        
+        /* Mobile only */
+        .mobile-only {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-only {
+                display: flex;
+            }
+        }
+    </style>
+</body>
+</html>

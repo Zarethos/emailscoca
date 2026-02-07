@@ -1,0 +1,29 @@
+{
+    "name": "Premium Starter",
+    "author": "Premium Mail Team",
+    "version": "2.0.0",
+    "license": "MIT",
+    "extends": "elastic",
+    "config": {
+        "jquery.min.js": "vendor/jquery-3.6.0/jquery.min.js",
+        "layout": "widescreen",
+        "embed_css": false,
+        "dark_mode_support": true
+    },
+    "meta": {
+        "description": "Premium creamy white and light orange theme for Roundcube",
+        "keywords": ["premium", "elegant", "modern", "webmail", "professional"],
+        "website": "https://github.com/premium-mail"
+    },
+    "supported_plugins": [
+        "archive",
+        "zipdownload",
+        "markasjunk",
+        "managesieve",
+        "password",
+        "newmail_notifier",
+        "calendar",
+        "carddav",
+        "enigma"
+    ]
+}
