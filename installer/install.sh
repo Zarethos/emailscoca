@@ -172,19 +172,35 @@ install_mysql() {
     systemctl start mariadb
     systemctl enable mariadb
     
-    # Secure MariaDB installation
+    # Generate password if not set
     if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
         MYSQL_ROOT_PASSWORD=$(generate_password 24)
     fi
     
-    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='';"
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DROP DATABASE IF EXISTS test;"
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
-    
-    log "MariaDB installed and secured"
+    # Check if root already has a password set
+    if mysql -u root -e "SELECT 1" &>/dev/null; then
+        # No password set, secure the installation
+        mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';"
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='';"
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DROP DATABASE IF EXISTS test;"
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';"
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+        log "MariaDB installed and secured"
+    else
+        # Root password already exists, ask user for it
+        log_warning "MariaDB root password already set."
+        echo -e "${YELLOW}Enter existing MariaDB root password:${NC}"
+        read -s MYSQL_ROOT_PASSWORD
+        echo
+        
+        # Verify the password works
+        if ! mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1" &>/dev/null; then
+            log_error "Invalid MariaDB root password!"
+            exit 1
+        fi
+        log "Using existing MariaDB installation"
+    fi
 }
 
 create_mail_database() {
