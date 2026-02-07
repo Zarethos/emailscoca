@@ -1033,9 +1033,11 @@ install_spamassassin() {
     
     apt-get install -y spamassassin spamc
     
-    # Enable SpamAssassin
-    sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/spamassassin
-    sed -i 's/CRON=0/CRON=1/' /etc/default/spamassassin
+    # Enable SpamAssassin - handle both old and new Ubuntu versions
+    if [ -f /etc/default/spamassassin ]; then
+        sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/spamassassin
+        sed -i 's/CRON=0/CRON=1/' /etc/default/spamassassin
+    fi
     
     # Configure SpamAssassin
     cat > /etc/spamassassin/local.cf <<EOF
@@ -1054,8 +1056,14 @@ use_razor2 0
 use_pyzor 0
 EOF
 
-    systemctl enable spamassassin
-    systemctl start spamassassin
+    # Ubuntu 24.04+ uses spamd, older versions use spamassassin
+    if systemctl list-unit-files | grep -q "^spamd.service"; then
+        systemctl enable spamd
+        systemctl start spamd
+    else
+        systemctl enable spamassassin
+        systemctl start spamassassin
+    fi
     
     log "SpamAssassin installed and configured"
 }
@@ -2207,11 +2215,18 @@ start_services() {
     systemctl restart postfix
     systemctl restart dovecot
     systemctl restart opendkim
-    systemctl restart spamassassin
+    
+    # Handle SpamAssassin service name difference
+    if systemctl list-unit-files | grep -q "^spamd.service"; then
+        systemctl restart spamd
+        systemctl enable mariadb postfix dovecot opendkim spamd nginx fail2ban
+    else
+        systemctl restart spamassassin
+        systemctl enable mariadb postfix dovecot opendkim spamassassin nginx fail2ban
+    fi
+    
     systemctl restart nginx
     systemctl restart fail2ban
-    
-    systemctl enable mariadb postfix dovecot opendkim spamassassin nginx fail2ban
     
     log "All services started and enabled"
 }
